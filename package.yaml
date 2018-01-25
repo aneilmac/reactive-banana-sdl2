@@ -1,0 +1,80 @@
+name:                reactive-banana-sdl2
+version:             0.1.0.0
+github:              "FortOyer/reactive-banana-sdl2"
+license:             BSD3
+author:              "Archibald Neil MacDonald"
+maintainer:          "FortOyer@hotmail.co.uk"
+copyright:           "2018 Archibald Neil MacDonald"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on Github at <https://github.com/FortOyer/reactive-banana-sdl2#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- reactive-banana
+- resourcet
+- sdl2
+- sdl2-image
+- sdl2-ttf
+- text
+
+library:
+  source-dirs: src
+
+tests:
+  reactive-banana-unit-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - reactive-banana-sdl2
+    - hspec
+
+executables:
+  basic-example:
+    main:                Basic.hs
+    source-dirs:         examples
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -main-is Basic
+    dependencies:
+    - reactive-banana-sdl2
+    - sdl2
+    when:
+    - condition: ! '!(flag(examples))'
+      buildable: false
+  dynamicquit-example:
+    main:                DynamicQuit.hs
+    source-dirs:         examples
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -main-is DynamicQuit
+    dependencies:
+    - reactive-banana-sdl2
+    - sdl2
+    when:
+    - condition: ! '!(flag(examples))'
+      buildable: false
+
+flags:
+  examples:
+    description: Build the examples with the tests.
+    manual: true
+    default: false
