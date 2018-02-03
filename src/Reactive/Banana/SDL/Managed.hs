@@ -11,7 +11,7 @@ SDL Resource Management. Wraps up common SDL functions with the equivalent
 -}
 module Reactive.Banana.SDL.Managed
   ( 
-  -- Core SDL
+  -- * Core SDL functions
     withSDLInit_
   , withSDLInitAll_
   , withWindow
@@ -19,14 +19,13 @@ module Reactive.Banana.SDL.Managed
   , withRenderer
   , withTextureFromSurface
   , withCaptureSurfTexture
-  -- SDL.Font
+  -- * SDL Font functions
   , withFontInit_
   , withFont
---  , withBlendedWrapped
---  , withBlendedWrappedTexture
-  -- SDL.Image
+  -- * SDL.Image functions
   , withImageInit_ 
   , withImage
+  , withImageTexture
   ) where
 
 import Control.Monad.Trans.Resource
@@ -64,8 +63,8 @@ withSDLInitAll_ callback = runResourceT $ do
   doCallback_ callback key
 
 -- | Allocates the "SDL.Font" (ttf module) resources for managing text
--- generation and font handling.
--- This is the managed equivalent of 'SDL.Font.initialize'.
+--   generation and font handling.
+--   This is the managed equivalent of 'SDL.Font.initialize'.
 --
 --   [@callback@]: The function executed during the scope of Font being
 --   initialized.
@@ -76,8 +75,8 @@ withFontInit_ callback = runResourceT $ do
   doCallback_ callback key
 
 -- | Allocates the "SDL.Image" (image module) resources for image loading
--- and parsing.
--- This is the managed equivalent of 'SDL.Image.initialize'.
+--   and parsing.
+--   This is the managed equivalent of 'SDL.Image.initialize'.
 --
 --   [@flags@]: SDL.Image flags to initialize. See 'SDL' for a full list of
 --   flags.
@@ -91,7 +90,7 @@ withImageInit_ flags callback = runResourceT $ do
   doCallback_ callback key
 
 -- | Allocates a window.
--- This is the managed equivalent of 'SDL.createWindow'.
+--   This is the managed equivalent of 'SDL.createWindow'.
 --
 --   [@t@]:    Window title.
 --
@@ -105,9 +104,9 @@ withWindow t c callback = runResourceT $ do
   doCallback_ (callback window) key
 
 -- | Allocates a renderer.
--- This is the managed equivalent of 'SDL.createRenderer'.
--- All arguments are equivalent to initialization arguments of
--- 'SDL.createRenderer'.
+--   This is the managed equivalent of 'SDL.createRenderer'.
+--   All arguments are equivalent to initialization arguments of
+--   'SDL.createRenderer'.
 --
 --   [@callback@]: The function executed during the scope of renderer being
 --   initialized.
@@ -118,9 +117,9 @@ withRenderer w i c callback = runResourceT $ do
   doCallback_ (callback renderer) key
 
 -- | Allocates a font.
--- This is the managed equivalent of 'SDL.Font.load'.
--- All arguments are equivalent to initialization arguments of
--- 'SDL.Font.load'.
+--   This is the managed equivalent of 'SDL.Font.load'.
+--   All arguments are equivalent to initialization arguments of
+--   'SDL.Font.load'.
 --
 --   [@callback@]: The function executed during the scope of font being
 --   initialized.
@@ -149,14 +148,6 @@ withTextureFromSurface r s callback = runResourceT $ do
 withWindowSurface :: SDL.Window -> (SDL.Surface -> IO a) -> IO a
 withWindowSurface window = withCaptureSurface (SDL.getWindowSurface window)
 
-{-
--- | Creates a surface from a string that is rendered both blended and wrapped.
--- This is the managed equivalent of 'SDL.Font.blendedWrapped'.
-withBlendedWrapped :: TTF.Font -> TTF.Color -> Int -> Text ->
-                      (SDL.Surface -> IO a) -> IO a
-withBlendedWrapped f c w t = withCaptureSurface (TTF.blendedWrapped f c w t)
--}
-
 -- | Helper function. Takes ownership of a passed in surface. Generates a
 --   texture from said surface. Applies the callback to the newly generated
 --   texture. The surface is destroyed before the texture callback is invoked
@@ -171,16 +162,6 @@ withCaptureSurfTexture surface r callback = runResourceT $ do
     release key
     callback texture
 
-{-
--- | Creates a texture from a string that is rendered both blended and wrapped.
--- This is a convenience function of 'withBlendedWrapped' combined with
--- 'withCaptureSurfTexture'.
-withBlendedWrappedTexture :: SDL.Renderer -> TTF.Font -> TTF.Color -> Int ->
-                             Text -> (SDL.Texture -> IO a) -> IO a
-withBlendedWrappedTexture r f c w t =
-  withCaptureSurfTexture (TTF.blendedWrapped f c w t) r
--}
-
 -- | Allocates a surface from an image.
 --   This is the managed equivalent of 'SDL.Image.load'
 --   All arguments are equivalent to initialization arguments of
@@ -193,3 +174,15 @@ withBlendedWrappedTexture r f c w t =
 withImage :: FilePath -> (SDL.Surface -> IO a) -> IO a
 withImage path = withCaptureSurface $ Image.load path
   
+-- | Allocates a texture from an image.
+--   This is the managed equivalent of 'SDL.Image.loadTexture'
+--   All arguments are equivalent to initialization arguments of
+--   'SDL.Image.load'.
+--
+--   [@path@]: File-path of image file.
+--
+--   [@callback@]: The function executed during the scope of image being
+--   loaded.
+withImageTexture :: SDL.Renderer -> FilePath -> (SDL.Texture -> IO a) -> IO a
+withImageTexture r path = withCaptureTexture $ Image.loadTexture r path
+

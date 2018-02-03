@@ -1,29 +1,40 @@
 {-|
 Module      : Reactive.Banana.SDL.Events
-Description : Output / Input events for Reactive Banana SDL
+Description : Input events for Reactive Banana SDL
 Copyright   : (c) Archibald Neil MacDonald, 2018
 License     : BSD3
 Maintainer  : FortOyer@hotmail.co.uk
 Event Handler system to interface with SDL through reactive-banana.
 -}
 module Reactive.Banana.SDL.Events
-    ( EventHandler
+    ( 
+    -- * Input Events 
+    EventHandler
+    , Event
     , addEventWatchHandler
     , withEventWatchHandler
     , addRepeatTimerHandler
     , withRepeatTimerHandler
+    -- * Input Behavior
+    , fromTime
     ) where
 
 import qualified SDL as S
+import qualified SDL.Time (ticks)
 import qualified Reactive.Banana as B
+import qualified Reactive.Banana.Frameworks as B
 import qualified Control.Event.Handler as H
 import Data.Word (Word32)
 import Control.Monad.Trans.Resource
 import Control.Monad (void)
 import Reactive.Banana.SDL.Internal.Managed (doCallback_)
 
--- | Alias for 'Banana.Reactive.Event' wrapper around an 'SDL.Event'.
+-- | Alias for 'Banana.Reactive' handler  that triggers on 'SDL.Event'
+--   callbacks.
 type EventHandler = H.AddHandler S.Event
+
+-- | Alias for 'Banana.Reactive.Event' wrapper around an 'SDL.Event'.
+type Event = B.Event S.Event
 
 -- | Use this to return an event handler with which events can be registered
 --   with. This will pump out all events that are passed through the SDL event
@@ -62,3 +73,7 @@ withRepeatTimerHandler w callback = runResourceT $ do
   let delTimer = void . S.removeTimer . snd -- Delete timer and return ()
   (k, (h, _)) <- allocate (addRepeatTimerHandler w) delTimer
   doCallback_ (callback h) k
+
+-- | Behaviour for pulling out the SDL time since arbitrary starting point.
+fromTime :: Fractional a => B.MomentIO (B.Behavior a)
+fromTime = B.fromPoll S.time

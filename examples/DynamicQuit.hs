@@ -13,8 +13,7 @@ functions, as well as our custom SDL looper. This example is more typical of
 a user's workflow than example 001.
 
 Basic test of our event system using reactive banana. This test does the
-following:
-
+following: 
 1. Sets up our SDL init with the start function, followed by some managed
    methods to retrieve other SDL resources.
 
@@ -24,9 +23,6 @@ following:
 3. Loops until the quit callback has been invoked.
 
 -}
-
-{-# LANGUAGE OverloadedStrings #-}
-
 module DynamicQuit (main) where
 
 import Reactive.Banana
@@ -38,15 +34,13 @@ import qualified SDL
 
 main :: IO ()
 main = BSDL.start $ 
-  \(run, quitCall) ->
+  \game ->
     -- Create our event watcher
     BSDL.withEventWatchHandler $ \eventHandle -> 
-      -- Create our window
-      BSDL.withWindow "Dynamic Quit" SDL.defaultWindow $ \window ->
         -- Compile and run our network
-        do network <- compile $ networkDesc quitCall eventHandle
+        do network <- compile $ networkDesc (BSDL.quit game) eventHandle
            actuate network
-           run
+           BSDL.run game
 
 networkDesc :: BSDL.QuitHandle -> BSDL.EventHandler -> MomentIO ()
 networkDesc quit eventHandler = do

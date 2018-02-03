@@ -8,6 +8,7 @@ Maintainer  : FortOyer@hotmail.co.uk
 module Reactive.Banana.SDL.Internal.Managed
   ( doCallback_
   , withCaptureSurface
+  , withCaptureTexture
   ) where
 
 import Control.Monad.Trans.Resource
@@ -15,7 +16,8 @@ import Control.Monad.IO.Class (liftIO)
 import qualified SDL
 
 -- | Helper that performs the internals of running a callback that does not
--- accept any arguments and returning the result after a release has occurred.
+--   accept any arguments and returning the result after a release has
+--   occurred.
 doCallback_ :: IO a -> ReleaseKey -> ResourceT IO a
 doCallback_ callback key = do
   ret <- liftIO callback
@@ -23,11 +25,21 @@ doCallback_ callback key = do
   return ret
 
 -- | Helper function. Takes ownership of a passed-in surface and deallocates it
--- when scope ends.
+--   when scope ends.
 --
 --   [@callback@]: The function executed during the scope of surface being
 --   valid.
 withCaptureSurface :: IO SDL.Surface -> (SDL.Surface -> IO a) -> IO a
 withCaptureSurface surface callback = runResourceT $ do
   (key, s) <- allocate surface SDL.freeSurface
+  liftIO $ callback s
+
+-- | Helper function. Takes ownership of a passed-in texture and deallocates it
+--   when scope ends.
+--
+--   [@callback@]: The function executed during the scope of surface being
+--   valid.
+withCaptureTexture :: IO SDL.Texture -> (SDL.Texture -> IO a) -> IO a
+withCaptureTexture texture callback = runResourceT $ do
+  (key, s) <- allocate texture SDL.destroyTexture
   liftIO $ callback s
