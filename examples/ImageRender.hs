@@ -23,8 +23,8 @@ import Reactive.Banana
 import Reactive.Banana.Frameworks
 import qualified Reactive.Banana.SDL.Events as BSDL
 import qualified Reactive.Banana.SDL.Managed as BSDL
-import qualified Reactive.Banana.SDL.Render as BSDL
 import qualified Reactive.Banana.SDL as BSDL
+import qualified Reactive.Banana.SDL.Render as BSDL
 import qualified SDL
 import qualified SDL.Image as SDL
 
@@ -55,7 +55,8 @@ render game eventHandler image = do
   let eQuit = unionWith const (() <$ filterE isQuitEvent eSDL) 
                               (() <$ filterE isEscKey eSDL)
 
-  BSDL.copyOn (BSDL.renderer game) $ (image, Nothing, Nothing) <$ eRender
+  -- Take our render event and print our image every time it appears.
+  BSDL.copyOn image Nothing Nothing eRender
 
   -- Call quit handler when a quit is detected.
   reactimate $ BSDL.quit game  <$> eQuit

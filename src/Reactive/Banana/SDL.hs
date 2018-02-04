@@ -28,7 +28,7 @@ type QuitHandle = (() -> IO ())
 data GameControls = GameControls { renderer :: SDL.Renderer
                                  , quit :: QuitHandle
                                  , run  :: IO ()
-                                 , renderHandler :: R.AddHandler ()
+                                 , renderHandler :: R.AddHandler SDL.Renderer
                                  }
 
 type MainFunction = (GameControls -> IO ())
@@ -53,7 +53,7 @@ start networkCallback = M.withSDLInitAll_ $
                loop = do
                  SDL.clear renderer
                  SDL.pumpEvents
-                 renderFire ()
+                 renderFire renderer
                  SDL.present renderer
                  q <- readIORef quitRef
                  unless q loop

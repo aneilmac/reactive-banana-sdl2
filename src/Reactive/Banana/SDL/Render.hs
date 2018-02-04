@@ -31,60 +31,60 @@ import Foreign.C.Types (CDouble, CInt)
 import Data.Vector.Storable (Vector)
 import Data.Word (Word8)
 
-clearOn :: S.Renderer -> Event () -> MomentIO ()
-clearOn r e = reactimate $ S.clear r <$ e
+clearOn :: Event S.Renderer -> MomentIO ()
+clearOn e = reactimate $ S.clear <$> e
 
-copyOn :: S.Renderer -> 
-  Event ( S.Texture
-        , Maybe (S.Rectangle CInt)
-        , Maybe (S.Rectangle CInt)
-        ) -> MomentIO ()
-copyOn r e = reactimate $ (\(a, b, c) -> S.copy r a b c) <$> e
+copyOn :: S.Texture
+       ->  Maybe (S.Rectangle CInt)
+       -> Maybe (S.Rectangle CInt)
+       ->  Event S.Renderer
+       ->  MomentIO ()
+copyOn s a b e = reactimate $ (\r -> S.copy r s a b) <$> e
 
-copyExOn :: S.Renderer ->
-  Event ( S.Texture
-        , Maybe (S.Rectangle CInt)
-        , Maybe (S.Rectangle CInt)
-        , CDouble
-        , Maybe (S.Point S.V2 CInt)
-        , S.V2 Bool
-        ) -> MomentIO ()
-copyExOn r e = reactimate $
-  (\(a, b, c, d, e, f) -> S.copyEx r a b c d e f) <$> e
+copyExOn :: S.Texture
+         ->  Maybe (S.Rectangle CInt)
+         ->  Maybe (S.Rectangle CInt)
+         ->  CDouble
+         ->  Maybe (S.Point S.V2 CInt)
+         ->  S.V2 Bool
+         -> Event S.Renderer
+         -> MomentIO ()
+copyExOn s a b d p x e = reactimate $ (\r -> S.copyEx r s a b d p x) <$> e
 
-drawLineOn :: S.Renderer ->
-  Event ( S.Point S.V2 CInt
-        , S.Point S.V2 CInt
-        ) -> MomentIO ()
-drawLineOn r e = reactimate $ uncurry (S.drawLine r) <$> e
+drawLineOn :: S.Point S.V2 CInt
+           ->  S.Point S.V2 CInt
+           -> Event S.Renderer
+           -> MomentIO ()
+drawLineOn a b e = reactimate $ (\r -> S.drawLine r a b)  <$> e
 
-drawLinesOn :: S.Renderer -> Event (Vector (S.Point S.V2 CInt)) -> MomentIO ()
-drawLinesOn r e = reactimate $ S.drawLines r <$> e
+drawLinesOn :: Vector (S.Point S.V2 CInt) -> Event S.Renderer -> MomentIO ()
+drawLinesOn  v e = reactimate $ (\r -> S.drawLines r v) <$> e
     
-drawPointOn :: S.Renderer -> Event (S.Point S.V2 CInt) -> MomentIO ()
-drawPointOn r e = reactimate $ S.drawPoint r <$> e
+drawPointOn :: S.Point S.V2 CInt -> Event S.Renderer -> MomentIO ()
+drawPointOn p e = reactimate $ (\r -> S.drawPoint r p) <$> e
 
-drawPointsOn :: S.Renderer -> Event (Vector (S.Point S.V2 CInt)) -> MomentIO ()
-drawPointsOn r e = reactimate $ S.drawPoints r <$> e
+drawPointsOn :: Vector (S.Point S.V2 CInt) -> Event S.Renderer -> MomentIO ()
+drawPointsOn v e = reactimate $ (\r -> S.drawPoints r v) <$> e
 
-drawRectOn :: S.Renderer -> Event (Maybe (S.Rectangle CInt)) -> MomentIO ()
-drawRectOn r e = reactimate $ S.drawRect r <$> e 
+drawRectOn :: Maybe (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
+drawRectOn x e = reactimate $ (\r -> S.drawRect r x) <$> e 
 
-drawRectsOn :: S.Renderer -> Event (Vector (S.Rectangle CInt)) -> MomentIO ()
-drawRectsOn r e = reactimate $ S.drawRects r <$> e 
+drawRectsOn :: Vector (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
+drawRectsOn v e = reactimate $ (\r -> S.drawRects r v) <$> e 
 
-fillRectOn :: S.Renderer -> Event (Maybe (S.Rectangle CInt)) -> MomentIO ()
-fillRectOn r e = reactimate $ S.fillRect r <$> e
+fillRectOn :: Maybe (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
+fillRectOn x e = reactimate $ (\r -> S.fillRect r x) <$> e
 
-fillRectsOn :: S.Renderer -> Event (Vector (S.Rectangle CInt)) -> MomentIO ()
-fillRectsOn r e = reactimate $ S.fillRects r <$> e
+fillRectsOn :: Vector (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
+fillRectsOn v e = reactimate $ (\r -> S.fillRects r v) <$> e
 
-presentOn :: S.Renderer -> Event () -> MomentIO ()
-presentOn r e = reactimate $ S.present r <$ e
+presentOn :: Event S.Renderer -> MomentIO ()
+presentOn e = reactimate $ S.present <$> e
 
-rendererDrawBlendModeOn :: S.Renderer -> Event S.BlendMode -> MomentIO ()
-rendererDrawBlendModeOn r e = reactimate $ (S.rendererDrawBlendMode r $=) <$> e
+rendererDrawBlendModeOn :: S.BlendMode -> Event S.Renderer -> MomentIO ()
+rendererDrawBlendModeOn b e = reactimate $
+  (\r -> S.rendererDrawBlendMode r $= b) <$> e
 
-rendererDrawColorOn :: S.Renderer -> Event (S.V4 Word8) -> MomentIO ()
-rendererDrawColorOn r e = reactimate $ (S.rendererDrawColor r $=) <$> e
+rendererDrawColorOn :: S.V4 Word8 -> Event S.Renderer -> MomentIO ()
+rendererDrawColorOn c e = reactimate $ (\r -> S.rendererDrawColor r $= c) <$> e
 
