@@ -88,6 +88,20 @@ executables:
     when:
     - condition: ! '!(flag(examples))'
       buildable: false
+  interpolation-example:
+    main:                Interpolation.hs
+    source-dirs:         examples
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -main-is Interpolation
+    dependencies:
+    - reactive-banana-sdl2
+    - sdl2
+    when:
+    - condition: ! '!(flag(examples))'
+      buildable: false
 
 flags:
   examples:

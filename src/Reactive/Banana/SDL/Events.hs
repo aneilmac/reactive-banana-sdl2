@@ -9,7 +9,7 @@ Event Handler system to interface with SDL through reactive-banana.
 module Reactive.Banana.SDL.Events
     ( 
     -- * Input Events 
-    EventHandler
+      EventHandler
     , Event
     , addEventWatchHandler
     , withEventWatchHandler
@@ -28,6 +28,7 @@ import Data.Word (Word32)
 import Control.Monad.Trans.Resource
 import Control.Monad (void)
 import Reactive.Banana.SDL.Internal.Managed (doCallback_)
+import Reactive.Banana.SDL.Internal.Interpolation (asSecs)
 
 -- | Alias for 'Banana.Reactive' handler  that triggers on 'SDL.Event'
 --   callbacks.
@@ -35,6 +36,7 @@ type EventHandler = H.AddHandler S.Event
 
 -- | Alias for 'Banana.Reactive.Event' wrapper around an 'SDL.Event'.
 type Event = B.Event S.Event
+
 
 -- | Use this to return an event handler with which events can be registered
 --   with. This will pump out all events that are passed through the SDL event
@@ -60,15 +62,25 @@ withEventWatchHandler callback = runResourceT $ do
 
 --   [@return@] Returns a tuple of the timer handler, and a handle to delete
 --   the timer from the SDL back-end.
-addRepeatTimerHandler :: Word32 -> IO (H.AddHandler (), S.Timer)
+addRepeatTimerHandler :: Fractional a => Word32 -> IO (H.AddHandler (a, a), S.Timer)
 addRepeatTimerHandler w = do
   (addHandler, fire) <- H.newAddHandler
-  timer <- S.addTimer w (\t -> fire () >> return (S.Reschedule t))
+  timer <- S.addTimer w (\t -> fireMe fire t >> return (S.Reschedule t))
   return (addHandler, timer)
+
+grabTimes  :: Fractional a => Word32 -> IO (a, a)
+grabTimes i = do
+  t <- S.ticks
+  return (asSecs t, asSecs $ t + i)
+
+fireMe :: Fractional a => H.Handler (a, a) -> Word32 -> IO ()
+fireMe fire i = do
+  t <- grabTimes i
+  fire t
 
 -- | Like 'addRepeatedTimerHandler' but wrapped up in the __withXXX__ pattern
 --   so that the timer is automatically deleted once finished.
-withRepeatTimerHandler :: Word32 -> (H.AddHandler () -> IO a) -> IO a
+withRepeatTimerHandler :: Fractional a => Word32 -> (H.AddHandler (a, a) -> IO b) -> IO b
 withRepeatTimerHandler w callback = runResourceT $ do
   let delTimer = void . S.removeTimer . snd -- Delete timer and return ()
   (k, (h, _)) <- allocate (addRepeatTimerHandler w) delTimer
@@ -76,4 +88,4 @@ withRepeatTimerHandler w callback = runResourceT $ do
 
 -- | Behaviour for pulling out the SDL time since arbitrary starting point.
 fromTime :: Fractional a => B.MomentIO (B.Behavior a)
-fromTime = B.fromPoll S.time
+fromTime = B.fromPoll (asSecs <$> S.ticks)

@@ -22,13 +22,14 @@ import SDL.Image (InitFlag(..))
 import qualified Reactive.Banana.SDL.Managed as M
 import qualified Reactive.Banana.SDL.Events as E
 import qualified Control.Event.Handler as R
+import qualified Reactive.Banana.SDL.Internal.Interpolation as I
 
 type QuitHandle = (() -> IO ())
 
 data GameControls = GameControls { renderer :: SDL.Renderer
                                  , quit :: QuitHandle
                                  , run  :: IO ()
-                                 , renderHandler :: R.AddHandler SDL.Renderer
+                                 , renderHandler :: R.AddHandler (SDL.Renderer, Double)
                                  }
 
 type MainFunction = (GameControls -> IO ())
@@ -42,18 +43,18 @@ start networkCallback = M.withSDLInitAll_ $
 
       M.withRenderer window (-1) SDL.defaultRenderer $ \renderer ->
 
-        do quitRef <- newIORef False
+        do (renderHandler, renderFire) <- R.newAddHandler
+
+           quitRef <- newIORef False
            let quitCall :: QuitHandle
                quitCall _ = writeIORef quitRef True
-
-           -- Called every single frame of rendering.
-           (renderHandler, renderFire) <- R.newAddHandler
 
            let loop :: IO ()
                loop = do
                  SDL.clear renderer
                  SDL.pumpEvents
-                 renderFire renderer
+                 t <- SDL.ticks
+                 renderFire (renderer, I.asSecs t)
                  SDL.present renderer
                  q <- readIORef quitRef
                  unless q loop

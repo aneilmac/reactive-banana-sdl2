@@ -25,6 +25,7 @@ following:
 -}
 module DynamicQuit (main) where
 
+import Examples.Common
 import Reactive.Banana
 import Reactive.Banana.Frameworks
 import qualified Reactive.Banana.SDL.Events as BSDL
@@ -58,13 +59,3 @@ networkDesc quit eventHandler = do
   -- Call quit handler when a quit is detected.
   reactimate $ quit  <$> eQuit
 
--- | Does the event contain SDL.QuitEvent payload.
-isQuitEvent :: SDL.Event -> Bool
-isQuitEvent e = SDL.QuitEvent == SDL.eventPayload e
-
--- | Does the key event contain an SDL.KeyboardEvent payload, and if so return
---   true if it is carrying the Esc key-code. Otherwise return false.
-isEscKey :: SDL.Event -> Bool
-isEscKey (SDL.Event _ (SDL.KeyboardEvent a)) =
-  SDL.keysymKeycode (SDL.keyboardEventKeysym a) == SDL.KeycodeEscape
-isEscKey _ = False

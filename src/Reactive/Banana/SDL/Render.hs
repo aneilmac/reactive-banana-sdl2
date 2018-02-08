@@ -58,25 +58,25 @@ drawLineOn :: S.Point S.V2 CInt
 drawLineOn a b e = reactimate $ (\r -> S.drawLine r a b)  <$> e
 
 drawLinesOn :: Vector (S.Point S.V2 CInt) -> Event S.Renderer -> MomentIO ()
-drawLinesOn  v e = reactimate $ (\r -> S.drawLines r v) <$> e
+drawLinesOn  v e = reactimate $ (`S.drawLines` v) <$> e
     
 drawPointOn :: S.Point S.V2 CInt -> Event S.Renderer -> MomentIO ()
-drawPointOn p e = reactimate $ (\r -> S.drawPoint r p) <$> e
+drawPointOn p e = reactimate $ (`S.drawPoint` p) <$> e
 
 drawPointsOn :: Vector (S.Point S.V2 CInt) -> Event S.Renderer -> MomentIO ()
-drawPointsOn v e = reactimate $ (\r -> S.drawPoints r v) <$> e
+drawPointsOn v e = reactimate $ (`S.drawPoints` v) <$> e
 
 drawRectOn :: Maybe (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
-drawRectOn x e = reactimate $ (\r -> S.drawRect r x) <$> e 
+drawRectOn x e = reactimate $ (`S.drawRect` x) <$> e 
 
 drawRectsOn :: Vector (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
-drawRectsOn v e = reactimate $ (\r -> S.drawRects r v) <$> e 
+drawRectsOn v e = reactimate $ (`S.drawRects` v) <$> e 
 
 fillRectOn :: Maybe (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
-fillRectOn x e = reactimate $ (\r -> S.fillRect r x) <$> e
+fillRectOn x e = reactimate $ (`S.fillRect` x) <$> e
 
 fillRectsOn :: Vector (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
-fillRectsOn v e = reactimate $ (\r -> S.fillRects r v) <$> e
+fillRectsOn v e = reactimate $ (`S.fillRects` v) <$> e
 
 presentOn :: Event S.Renderer -> MomentIO ()
 presentOn e = reactimate $ S.present <$> e
