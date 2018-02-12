@@ -26,20 +26,22 @@ doCallback_ callback key = do
 
 -- | Helper function. Takes ownership of a passed-in surface and deallocates it
 --   when scope ends.
---
---   [@callback@]: The function executed during the scope of surface being
---   valid.
-withCaptureSurface :: IO SDL.Surface -> (SDL.Surface -> IO a) -> IO a
-withCaptureSurface surface callback = runResourceT $ do
-  (key, s) <- allocate surface SDL.freeSurface
+withCaptureSurface :: IO SDL.Surface
+                   -> (SDL.Surface -> IO a)  -- ^ The function executed during
+                                             --   the scope of surface being
+                                             --   valid.
+                   -> IO a
+withCaptureSurface surf callback = runResourceT $ do
+  (_, s) <- allocate surf SDL.freeSurface
   liftIO $ callback s
 
 -- | Helper function. Takes ownership of a passed-in texture and deallocates it
 --   when scope ends.
---
---   [@callback@]: The function executed during the scope of surface being
---   valid.
-withCaptureTexture :: IO SDL.Texture -> (SDL.Texture -> IO a) -> IO a
+withCaptureTexture :: IO SDL.Texture
+                   -> (SDL.Texture -> IO a) -- ^ The function executed during
+                                            --   the scope of surface being
+                                            --   valid.
+                   -> IO a
 withCaptureTexture texture callback = runResourceT $ do
-  (key, s) <- allocate texture SDL.destroyTexture
+  (_, s) <- allocate texture SDL.destroyTexture
   liftIO $ callback s

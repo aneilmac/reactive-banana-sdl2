@@ -156,8 +156,8 @@ withWindowSurface window = withCaptureSurface (SDL.getWindowSurface window)
 withCaptureSurfTexture :: IO SDL.Surface -> SDL.Renderer ->
                           (SDL.Texture -> IO a) -> IO a
 withCaptureSurfTexture surface r callback = runResourceT $ do
-  (key, surface) <- allocate surface SDL.freeSurface
-  liftIO $ withTextureFromSurface r surface $ \texture -> do
+  (key, surf) <- allocate surface SDL.freeSurface
+  liftIO $ withTextureFromSurface r surf $ \texture -> do
     -- release before texture access happens. Otherwise it is wastefully held.
     release key
     callback texture

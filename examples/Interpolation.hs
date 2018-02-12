@@ -27,6 +27,7 @@ import qualified Reactive.Banana.SDL.Events as BSDL
 import qualified Reactive.Banana.SDL.Managed as BSDL
 import qualified Reactive.Banana.SDL.Render as BSDL
 import qualified Reactive.Banana.SDL.Interpolation as BSDL
+import qualified Reactive.Banana.SDL.Easing as BSDL
 import qualified Reactive.Banana.SDL.Internal.Interpolation as I
 import qualified Reactive.Banana.SDL as BSDL
 import qualified Reactive.Banana.SDL.Easing as BSDL
@@ -100,24 +101,10 @@ changeRect :: Fractional a => Rectangle a -> Rectangle a
 changeRect r = addPos (P (V2 20 0)) r
 
 lerpRect :: Fractional a => a -> Rectangle a -> Rectangle a -> Rectangle a
-lerpRect t (Rectangle p0 w0) (Rectangle p1 w1) = Rectangle (BSDL.lerp t p0 p1) (BSDL.lerp t w0 w1)
+lerpRect t (Rectangle p0 w0) (Rectangle p1 w1) = Rectangle (BSDL.linear t p0 p1) (BSDL.linear t w0 w1)
 
 convertRect :: RealFrac a => Rectangle a -> Rectangle CInt
 convertRect (Rectangle (P (V2 x y)) (V2 w h)) = Rectangle (P (V2 (truncate x) (truncate y))) (V2 (truncate w) (truncate h))
 
-posT = posL quadRect
-
-quadRect :: Fractional a => a -> Rectangle a -> Rectangle a -> Rectangle a
-quadRect t (Rectangle p0 w0) (Rectangle p1 w1) = Rectangle (BSDL.quad t p0 p1) (BSDL.lerp t w0 w1)
-
-posQ = posL quadRect
-
-posL :: (Fractional a, Ord a)
-     => (a -> b a -> b a -> b a)
-     -> (b a, b a)
-     -> (a, a)
-     -> a
-     -> b a
-posL f (r1, r2) (t1, t2) t = f coeff r2 r1
-  where coeff = BSDL.clamp 0.0 1.0 $ (t - t1) / (t2 - t1)
+posT = BSDL.interpolateTime lerpRect
 

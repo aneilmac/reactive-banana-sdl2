@@ -26,7 +26,6 @@ import qualified SDL as S
 import SDL (($=))
 import Reactive.Banana
 import Reactive.Banana.Frameworks
-import Control.Monad (void)
 import Foreign.C.Types (CDouble, CInt)
 import Data.Vector.Storable (Vector)
 import Data.Word (Word8)

@@ -20,7 +20,6 @@ module Reactive.Banana.SDL.Events
     ) where
 
 import qualified SDL as S
-import qualified SDL.Time (ticks)
 import qualified Reactive.Banana as B
 import qualified Reactive.Banana.Frameworks as B
 import qualified Control.Event.Handler as H

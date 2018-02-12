@@ -1,35 +1,23 @@
 module Reactive.Banana.SDL.Interpolation
   (
-    clamp
+  -- * Interpolation
+    interpolateTime
+  , interpolateTimeLinear
+  -- * Interpolation Event Helpers
   , asDelta2E
   , asDelta2B
   , asDelta3E
   , asDelta3B
   , asTimeB
+  -- * Misc
+  , clamp
   ) where
 
 import qualified Reactive.Banana as B
-import Reactive.Banana((<@>), (<@))
 import qualified Reactive.Banana.Frameworks as B
 import qualified Reactive.Banana.SDL.Events as BSDL
+import qualified Reactive.Banana.SDL.Easing as BSDL
 import Linear.Vector
-
----- |
---interpolateEvent :: (Ord a, Fractional a, Additive b)
---                 => a
---                 -> B.Event (b a, b a)
---                 -> B.MomentIO (B.Event (b a))
---interpolateEvent duration e = do
---  bt <- BSDL.fromTime
---  t  <- B.valueB bt -- Derive our current time.
---  b2 <- asDiffB t e -- Derive the changes in delta-time for each event.
---  -- Interpolate a position between the changes where the range must be
---  -- [initialPoint, targetPoint]
---  let b3 = (\a (pointA, pointB) -> 
---    lerp (max 1.0 $ a / (t+duration)) pointA pointB) <$> b2
---  -- apply this position to our point event which needs changed.
---  return $ b3 <@> e
-
 
 asTimeB :: Fractional a => a -> B.Event (a, a) -> B.MomentIO (B.Behavior (a, a))
 asTimeB i e = do
@@ -49,8 +37,30 @@ asDelta3E i e = B.accumE (i, i, i) $ (\f (_, x1, x2) -> (x1, x2, f x2)) <$> e
 asDelta3B :: a -> B.Event (a -> a) -> B.MomentIO (B.Behavior (a, a, a))
 asDelta3B i e = B.accumB (i, i, i) $ (\f (_, x1, x2) -> (x1, x2, f x2)) <$> e
 
-clamp :: Ord a => a -> a -> a -> a
-clamp min max d
-  | d < min   = min
-  | d > max   = max
+-- | Clamps a value between a max and min value.
+clamp :: Ord a
+      => a -- ^ Lower bounds.
+      -> a -- ^ Upper bounds.
+      -> a -- ^ Value to clamp
+      -> a -- ^ Clamp output.
+clamp mi ma d
+  | d < mi   = mi
+  | d > ma   = ma
   | otherwise = d
+
+-- | TODO
+interpolateTime :: (Fractional a, Ord a)
+     => (a -> b a -> b a -> b a) -- ^ Easing function.
+     -> (b a, b a)               -- ^ Position from / to
+     -> (a, a)                   -- ^ Time start / end
+     -> a                        -- ^ Current time 
+     -> b a                      -- ^ Position out
+interpolateTime f (r1, r2) (t1, t2) t = f coeff r1 r2
+  where coeff = clamp 0 1 $ (t - t1) / (t2 - t1)
+
+-- | Equivalent to interpolateTime 'Reaction.Banana.SDL.Easing.linear'
+interpolateTimeLinear :: (Fractional a, Additive b, Ord a) 
+                      =>(b a, b a) -> (a, a) -> a -> b a
+interpolateTimeLinear = interpolateTime BSDL.linear
+
+

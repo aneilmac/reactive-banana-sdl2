@@ -18,9 +18,7 @@ module Reactive.Banana.SDL
 import Control.Monad (unless)
 import Data.IORef
 import qualified SDL
-import SDL.Image (InitFlag(..))
 import qualified Reactive.Banana.SDL.Managed as M
-import qualified Reactive.Banana.SDL.Events as E
 import qualified Control.Event.Handler as R
 import qualified Reactive.Banana.SDL.Internal.Interpolation as I
 
@@ -43,7 +41,7 @@ start networkCallback = M.withSDLInitAll_ $
 
       M.withRenderer window (-1) SDL.defaultRenderer $ \renderer ->
 
-        do (renderHandler, renderFire) <- R.newAddHandler
+        do (rendHandler, renderFire) <- R.newAddHandler
 
            quitRef <- newIORef False
            let quitCall :: QuitHandle
@@ -59,5 +57,5 @@ start networkCallback = M.withSDLInitAll_ $
                  q <- readIORef quitRef
                  unless q loop
 
-           networkCallback $ GameControls renderer quitCall loop renderHandler
+           networkCallback $ GameControls renderer quitCall loop rendHandler
 
