@@ -3,6 +3,7 @@ module Reactive.Banana.SDL.Interpolation
   -- * Interpolation
     interpolateTime
   , interpolateTimeLinear
+  , interpRectPos
   -- * Interpolation Event Helpers
   , asDelta2E
   , asDelta2B
@@ -17,6 +18,8 @@ import qualified Reactive.Banana as B
 import qualified Reactive.Banana.Frameworks as B
 import qualified Reactive.Banana.SDL.Events as BSDL
 import qualified Reactive.Banana.SDL.Easing as BSDL
+import SDL.Video.Renderer (Rectangle (..))
+import SDL.Vect (Point, V2)
 import Linear.Vector
 
 asTimeB :: Fractional a => a -> B.Event (a, a) -> B.MomentIO (B.Behavior (a, a))
@@ -48,19 +51,27 @@ clamp mi ma d
   | d > ma   = ma
   | otherwise = d
 
+
+interpRectPos :: (a -> Point V2 c -> Point V2 c -> Point V2 c)
+              -> a
+              -> Rectangle c
+              -> Rectangle c
+              -> Rectangle c
+interpRectPos f coeff (Rectangle p1 w1) (Rectangle p2 _) =
+  Rectangle (f coeff p1 p2) w1
+
 -- | TODO
 interpolateTime :: (Fractional a, Ord a)
-     => (a -> b a -> b a -> b a) -- ^ Easing function.
-     -> (b a, b a)               -- ^ Position from / to
-     -> (a, a)                   -- ^ Time start / end
-     -> a                        -- ^ Current time 
-     -> b a                      -- ^ Position out
+     => (a -> b c -> b c -> b c) -- ^ Easing function.
+     -> (b c, b c)               -- ^ Positions to interpolate between.
+     -> (a, a)                   -- ^ Time start and end of interpolation.
+     -> a                        -- ^ Current time.
+     -> b c                      -- ^ Position out.
 interpolateTime f (r1, r2) (t1, t2) t = f coeff r1 r2
   where coeff = clamp 0 1 $ (t - t1) / (t2 - t1)
 
 -- | Equivalent to interpolateTime 'Reaction.Banana.SDL.Easing.linear'
 interpolateTimeLinear :: (Fractional a, Additive b, Ord a) 
-                      =>(b a, b a) -> (a, a) -> a -> b a
+                      => (b a, b a) -> (a, a) -> a -> b a
 interpolateTimeLinear = interpolateTime BSDL.linear
-
 

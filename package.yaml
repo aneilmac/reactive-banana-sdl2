@@ -108,6 +108,20 @@ executables:
     when:
     - condition: ! '!(flag(examples))'
       buildable: false
+  snake-example:
+    main:                Snake.hs
+    source-dirs:         examples
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -main-is Snake
+    dependencies:
+    - reactive-banana-sdl2
+    - sdl2
+    when:
+    - condition: ! '!(flag(examples))'
+      buildable: false
 
 flags:
   examples:

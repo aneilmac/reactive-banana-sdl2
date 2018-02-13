@@ -20,7 +20,6 @@ following:
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
-
 module Basic (main) where
 
 import Control.Monad (unless)

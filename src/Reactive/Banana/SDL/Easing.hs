@@ -36,7 +36,7 @@ module Reactive.Banana.SDL.Easing
 import Linear.Vector
 
 -- | warp tweening - no movement between frames.
-warp :: (Ord a, Num a) => a -> f a -> f a -> f a
+warp :: (Ord a, Num a) => a -> f b -> f b -> f b
 warp t a b
   | t2 < 1    = a
   | otherwise = b

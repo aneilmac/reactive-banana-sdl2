@@ -17,6 +17,7 @@ module Reactive.Banana.SDL
 
 import Control.Monad (unless)
 import Data.IORef
+import Data.Text (Text)
 import qualified SDL
 import qualified Reactive.Banana.SDL.Managed as M
 import qualified Control.Event.Handler as R
@@ -32,12 +33,15 @@ data GameControls = GameControls { renderer :: SDL.Renderer
 
 type MainFunction = (GameControls -> IO ())
 
-start :: MainFunction -> IO ()
-start networkCallback = M.withSDLInitAll_ $
+start :: Text             -- ^ Window title
+      -> SDL.WindowConfig -- ^ Window configuration
+      -> MainFunction     -- ^ Main function to run in our game.
+      -> IO ()
+start title config networkCallback = M.withSDLInitAll_ $
 
   M.withSDLInitAll_ $
 
-    M.withWindow "Reactive Banana SDL2" SDL.defaultWindow $ \window ->
+    M.withWindow title config $ \window ->
 
       M.withRenderer window (-1) SDL.defaultRenderer $ \renderer ->
 

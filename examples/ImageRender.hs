@@ -17,6 +17,7 @@ key is pressed.
 
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module ImageRender (main) where
 
 import Examples.Common
@@ -32,7 +33,7 @@ import qualified SDL.Image as SDL
 imagePath = "data/banana.png"
 
 main :: IO ()
-main = BSDL.start $
+main = BSDL.start "Image render" SDL.defaultWindow $
   \game ->
    -- Init image loading modules.
    BSDL.withImageInit_ [SDL.InitPNG] $

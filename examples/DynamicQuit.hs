@@ -23,6 +23,8 @@ following:
 3. Loops until the quit callback has been invoked.
 
 -}
+
+{-# LANGUAGE OverloadedStrings #-}
 module DynamicQuit (main) where
 
 import Examples.Common
@@ -34,7 +36,7 @@ import qualified Reactive.Banana.SDL as BSDL
 import qualified SDL
 
 main :: IO ()
-main = BSDL.start $ 
+main = BSDL.start "Dynamic quit" SDL.defaultWindow $ 
   \game ->
     -- Create our event watcher
     BSDL.withEventWatchHandler $ \eventHandle -> 

@@ -18,6 +18,7 @@ key is pressed.
 
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Interpolation (main) where
 
 import Examples.Common
@@ -43,12 +44,12 @@ hertz10 :: Word32
 hertz10 = 100
 
 main :: IO ()
-main = BSDL.start $
+main = BSDL.start "Interpolation" SDL.defaultWindow $
   \game ->
    -- Init image loading modules.
    BSDL.withImageInit_ [Image.InitPNG] $
       -- Create our event watcher
-      BSDL.withEventWatchHandler $ \eventHandle -> 
+      BSDL.withEventWatchHandler $ \eventHandle ->
         -- Create a time handler that repeats every 10HZ.
         BSDL.withRepeatTimerHandler hertz10 $ \timer ->
           -- Grab image from path.
@@ -71,7 +72,7 @@ render game eventHandler timeHandler image = do
 
   -- Quit event triggers whenever escape key is pressed or an SDL_QuitEvent
   -- appears in stream. Filter eSDL for these cases.
-  let eQuit = unionWith const (() <$ filterE isQuitEvent eSDL) 
+  let eQuit = unionWith const (() <$ filterE isQuitEvent eSDL)
                               (() <$ filterE isEscKey eSDL)
 
   positionX <- BSDL.asDelta2B (Rectangle (P (V2 100 100)) (V2 100 100)) $ changeRect <$ eLogic
@@ -87,7 +88,8 @@ render game eventHandler timeHandler image = do
   let doDraw = drawFunc <@> eRender
 
   reactimate doDraw
-  reactimate $ (\rect (rend, _) -> copy rend image Nothing (Just $ convertRect rect)) <$> positionX2 <@> eRender
+  reactimate $ (\rect (rend, _) ->
+    copy rend image Nothing (Just $ convertRect rect)) <$> positionX2 <@> eRender
   --reactimate $ (\(t1, t2) (_, t) -> print t1 >> print t2 >> print t) <$> bLogic <@> eRender
   --reactimate $ (\(t1, t2) (_, t) -> print $ ((t - t1) / (t2 - t1))) <$> bLogic <@> eRender
 
@@ -101,10 +103,12 @@ changeRect :: Fractional a => Rectangle a -> Rectangle a
 changeRect r = addPos (P (V2 20 0)) r
 
 lerpRect :: Fractional a => a -> Rectangle a -> Rectangle a -> Rectangle a
-lerpRect t (Rectangle p0 w0) (Rectangle p1 w1) = Rectangle (BSDL.linear t p0 p1) (BSDL.linear t w0 w1)
+lerpRect t (Rectangle p0 w0) (Rectangle p1 w1) =
+  Rectangle (BSDL.linear t p0 p1) (BSDL.linear t w0 w1)
 
 convertRect :: RealFrac a => Rectangle a -> Rectangle CInt
-convertRect (Rectangle (P (V2 x y)) (V2 w h)) = Rectangle (P (V2 (truncate x) (truncate y))) (V2 (truncate w) (truncate h))
+convertRect (Rectangle (P (V2 x y)) (V2 w h)) =
+  Rectangle (P (V2 (truncate x) (truncate y))) (V2 (truncate w) (truncate h))
 
 posT = BSDL.interpolateTime lerpRect
 

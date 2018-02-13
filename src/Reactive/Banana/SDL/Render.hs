@@ -26,6 +26,7 @@ import qualified SDL as S
 import SDL (($=))
 import Reactive.Banana
 import Reactive.Banana.Frameworks
+import Reactive.Banana.SDL.Interpolation
 import Foreign.C.Types (CDouble, CInt)
 import Data.Vector.Storable (Vector)
 import Data.Word (Word8)
@@ -71,8 +72,14 @@ drawRectOn x e = reactimate $ (`S.drawRect` x) <$> e
 drawRectsOn :: Vector (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
 drawRectsOn v e = reactimate $ (`S.drawRects` v) <$> e 
 
-fillRectOn :: Maybe (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
-fillRectOn x e = reactimate $ (`S.fillRect` x) <$> e
+fillRectOn :: (Fractional a, Ord a)
+           => (a -> S.Point S.V2 CInt -> S.Point S.V2 CInt -> S.Point S.V2 CInt)
+           -> Behavior (S.Rectangle CInt, S.Rectangle CInt)
+           -> Behavior (a, a)
+           -> Event (S.Renderer, a)
+           -> MomentIO ()
+fillRectOn f w b e = reactimate $
+  (\r t (rend, d) -> S.fillRect rend (Just $ interpolateTime (interpRectPos f) r t d)) <$> w <*> b <@> e
 
 fillRectsOn :: Vector (S.Rectangle CInt) -> Event S.Renderer -> MomentIO ()
 fillRectsOn v e = reactimate $ (`S.fillRects` v) <$> e
